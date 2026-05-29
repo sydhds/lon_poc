@@ -1,0 +1,10 @@
+target/
+methods/guest/target/
+*.bin
+.sig_verif_2-state
+.sig_verif_2-state.tmp
+
+# IDE
+.idea
+build.sh
+.fuse*

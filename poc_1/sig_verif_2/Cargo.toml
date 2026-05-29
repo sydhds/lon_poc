@@ -1,0 +1,10 @@
+[workspace]
+members = [
+    "sig_verif_2_core",
+    "methods",
+    "examples",
+]
+exclude = [
+    "methods/guest",
+]
+resolver = "2"
