@@ -11,10 +11,17 @@ pub struct TokenState {
     pub amount: u64,
 }
 
+#[derive(Debug)]
+struct GuardianSetInfo {
+    pub addresses: [[u8; 20]; 13],
+    pub expiration_time: u64,
+}
+
 #[lez_program]
 mod sig_verif_2 {
-    use sig_verif_2_core::{GuardianAddress, GuardianSetInfo};
+
     use super::*;
+    use sig_verif_2_core::{GuardianSetInfo};
 
     /*
     const guardian_addresses: &[&[u8]] = &[
@@ -23,6 +30,9 @@ mod sig_verif_2 {
     ];
     */
 
+    // Include GUARDIAN_SET_INFO
+    include!(concat!(env!("OUT_DIR"), "/guardian_set_gen.rs"));
+
     #[instruction]
     pub fn initialize(
         #[account(init, pda = literal("token"))]
@@ -30,6 +40,9 @@ mod sig_verif_2 {
         #[account(signer)]
         owner: AccountWithMetadata,
     ) -> SpelResult {
+
+        println!("guardian_set_info: {:?}", GUARDIAN_SET_INFO);
+
         let state = TokenState {
             amount: 0,
         };
@@ -52,7 +65,7 @@ mod sig_verif_2 {
         payload: Vec<u8>,
     ) -> SpelResult {
 
-        if !payload_verif(payload.as_slice()) {
+        if !payload_verif(payload.as_slice(), &GUARDIAN_SET_INFO) {
             return SpelResult::Err(
                 SpelError::Custom { code: 0, message: "Failed to parse/verify payload bytes".to_string() }
             );

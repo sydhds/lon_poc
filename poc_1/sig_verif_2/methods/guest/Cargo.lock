@@ -3376,6 +3376,7 @@ dependencies = [
  "risc0-zkvm",
  "ruint",
  "serde",
+ "serde_json",
  "sig_verif_2_core",
  "spel-framework",
 ]
@@ -3386,8 +3387,10 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "byteorder",
+ "k256",
  "pythnet-sdk",
  "serde",
+ "serde_json",
  "sha3",
 ]
 

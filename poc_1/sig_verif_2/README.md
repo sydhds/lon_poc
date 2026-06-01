@@ -1,73 +1,24 @@
 # sig_verif_2
 
-A SPEL program built with [spel-framework](https://github.com/logos-co/spel).
+LON POC pyth signature & merkle root verification
 
-## Prerequisites
+## Build
 
-- Rust + [risc0 toolchain](https://dev.risczero.com/api/zkvm/install)
-- [LSSA wallet CLI](https://github.com/logos-blockchain/lssa) (`wallet` binary)
-- A running sequencer
+### Build setup
 
-## Quick Start
+Generate guardian set info json:
+* `cd ../guardians_extract && cargo run -- fetch && cp -v ../guardian_extract/guardian.json methods/guest/`
 
-```bash
-# 1. Build the guest binary
-make build
+Easy option (build contract, generate idl & deploy contract): 
+* `./build.sh`
 
-# 2. Generate the IDL (auto-extracts from #[lez_program] annotations)
-make idl
+## Interact with the contract
 
-# 3. Deploy to sequencer
-make deploy
-
-# 4. See available commands (auto-generated from your program)
-make cli ARGS="--help"
-
-# 5. Run an instruction (spel.toml provides IDL and binary paths)
-make cli ARGS="<command> --arg1 value1 --arg2 value2"
-
-# Dry run (no submission):
-make cli ARGS="--dry-run -- <command> --arg1 value1"
-```
-
-## Make Targets
-
-| Target | Description |
-|--------|-------------|
-| `make build` | Build the guest binary (risc0) |
-| `make idl` | Generate IDL JSON from program source |
-| `make cli ARGS="..."` | Run the IDL-driven CLI |
-| `make deploy` | Deploy program to sequencer |
-| `make inspect` | Show ProgramId for built binary |
-| `make setup` | Create accounts via wallet |
-| `make status` | Show saved state and binary info |
-| `make clean` | Remove saved state |
-
-## Project Structure
-
-```
-sig_verif_2/
-├── sig_verif_2_core/    # Shared types (used by guest + host)
-│   └── src/lib.rs
-├── methods/
-│   └── guest/            # RISC Zero guest program (runs on-chain)
-│       └── src/bin/sig_verif_2.rs
-├── examples/             # CLI tools
-│   └── src/bin/
-│       ├── generate_idl.rs    # One-liner IDL generator
-│       └── sig_verif_2_cli.rs # Three-line CLI wrapper
-├── spel.toml                         # SPEL CLI config (IDL and binary paths)
-├── Makefile
-└── sig_verif_2-idl.json       # Auto-generated IDL
-```
-
-## How It Works
-
-The `#[lez_program]` macro in your guest binary defines your on-chain program.
-The framework automatically:
-
-1. **Generates an `Instruction` enum** from your function signatures
-2. **Generates an IDL** (Interface Description Language) describing your program
-3. **Provides a full CLI** for building, inspecting, and submitting transactions
-
-You write the program logic. The framework handles the rest.
+* initialize the contract:
+  * `spel initialize --owner <OWNER_ADDRESS>`
+    * example: `spel initialize --owner 7e8dDMEsTj1RmJ6BZ3DXnimxWQMNQDpYkGbMsAfk8BKs`
+  * mint token:
+    * fetch pyth to get payload:
+      * `cd ../pyth_extract && cargo run -- fetch`
+        * The payload is ready to past (check for `pyth_payload (ready_for_spel)`)
+    * `spel mint --owner 7e8dDMEsTj1RmJ6BZ3DXnimxWQMNQDpYkGbMsAfk8BKs --amount 15 --payload "{PAYLOAD}"`

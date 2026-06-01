@@ -1,0 +1,17 @@
+[package]
+name = "guardians_extract"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+tokio = { version = "1.52.1", features = ["full"] }
+borsh = "1.0"
+near-jsonrpc-client = "0.21"
+near-primitives = "0.35.1"
+near-jsonrpc-primitives = "0.35.1"
+hex = "0.4.3"
+serde = "1.0.228"
+serde_json = "1.0.149"
+anyhow = "1.0.102"
+clap = { version = "4.6.1", features = ["derive"] }
+chrono = "0.4.44"
