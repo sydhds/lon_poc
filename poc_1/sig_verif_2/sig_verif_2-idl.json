@@ -58,12 +58,6 @@
           "type": "u64"
         },
         {
-          "name": "sig",
-          "type": {
-            "vec": "u8"
-          }
-        },
-        {
           "name": "payload",
           "type": {
             "vec": "u8"

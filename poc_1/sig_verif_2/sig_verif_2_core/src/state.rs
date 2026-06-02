@@ -1,5 +1,6 @@
+use tiny_keccak::{Hasher, Keccak};
 use crate::byte_utils::ByteUtils;
-use sha3::{Digest, Keccak256};
+// use sha3::{Digest, Keccak256};
 
 // Validator Action Approval(VAA) data
 
@@ -78,9 +79,18 @@ impl ParsedVAA {
         let body = &data[body_offset..];
 
         // let hash = env::keccak256(body);
+        /*
         let mut hasher = Keccak256::default();
         hasher.update(&body);
         let hash = hasher.finalize().to_vec();
+        */
+        let hash = {
+            let mut hasher = Keccak::v256();
+            let mut output = [0u8; 32];
+            hasher.update(&body);
+            hasher.finalize(&mut output);
+            output.to_vec()
+        };
 
         // Signatures valid, apply VAA
         if body_offset + Self::VAA_PAYLOAD_POS > data.len() {

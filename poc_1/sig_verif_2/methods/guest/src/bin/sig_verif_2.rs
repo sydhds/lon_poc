@@ -61,7 +61,7 @@ mod sig_verif_2 {
         #[account(signer)]
         owner: AccountWithMetadata,
         amount: u64,
-        sig: Vec<u8>,
+        // sig: Vec<u8>,
         payload: Vec<u8>,
     ) -> SpelResult {
 

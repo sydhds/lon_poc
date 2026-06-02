@@ -10,12 +10,10 @@ anyhow = "1.0.102"
 #  third-party
 pythnet-sdk = { version = "2.3.1", default-features = false }
 byteorder = "1.5.0"
-sha3 = "0.10.8"
-k256 = { version = "0.13.4", features = ["ecdsa", "serde"] }
+# sha3.workspace = true
+tiny-keccak.workspace = true
+k256.workspace = true
 
-# TODO
-# [patch.crates-io]
-# sha3 = { git = "https://github.com/risc0/RustCrypto-hashes", tag = "sha3" }
 [build-dependencies]
 serde = { version = "1.0.228", features = ["derive"] }
 serde_json = "1.0.150"
