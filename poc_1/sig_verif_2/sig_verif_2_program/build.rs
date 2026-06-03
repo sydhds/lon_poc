@@ -27,7 +27,7 @@ fn main() {
     // Tell Cargo to recompile if the JSON file changes
     println!("cargo:rerun-if-changed=guardian.json");
 
-    let json_content = fs::read_to_string("guardian.json").unwrap();
+    let json_content = fs::read_to_string("../methods/guest/guardian.json").unwrap();
     let guardian: GuardianSetInfo_ = serde_json::from_str(&json_content).unwrap();
 
     println!("guardian: {:?}", guardian);
@@ -49,7 +49,13 @@ fn main() {
         const addr_11: [u8; 20] = {:?};
         const addr_12: [u8; 20] = {:?};
         const addr_13: [u8; 20] = {:?};
-        pub const GUARDIAN_SET_INFO: GuardianSetInfo = GuardianSetInfo {{ expiration_time: {}, addresses: [addr_1, addr_2, addr_3, addr_4, addr_5, addr_6, addr_7, addr_8, addr_9, addr_10, addr_11, addr_12, addr_13] }};
+        const addr_14: [u8; 20] = {:?};
+        const addr_15: [u8; 20] = {:?};
+        const addr_16: [u8; 20] = {:?};
+        const addr_17: [u8; 20] = {:?};
+        const addr_18: [u8; 20] = {:?};
+        const addr_19: [u8; 20] = {:?};
+        pub const GUARDIAN_SET_INFO: GuardianSetInfo = GuardianSetInfo {{ expiration_time: {}, addresses: [addr_1, addr_2, addr_3, addr_4, addr_5, addr_6, addr_7, addr_8, addr_9, addr_10, addr_11, addr_12, addr_13, addr_14, addr_15, addr_16, addr_17, addr_18, addr_19] }};
     "#,
                                  guardian.addresses[0].bytes,
                                  guardian.addresses[1].bytes,
@@ -64,6 +70,12 @@ fn main() {
                                  guardian.addresses[10].bytes,
                                  guardian.addresses[11].bytes,
                                  guardian.addresses[12].bytes,
+                                 guardian.addresses[13].bytes,
+                                 guardian.addresses[14].bytes,
+                                 guardian.addresses[15].bytes,
+                                 guardian.addresses[16].bytes,
+                                 guardian.addresses[17].bytes,
+                                 guardian.addresses[18].bytes,
                                  guardian.expiration_time,
     );
 

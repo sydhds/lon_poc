@@ -3378,6 +3378,7 @@ dependencies = [
  "serde",
  "serde_json",
  "sig_verif_2_core",
+ "sig_verif_2_program",
  "spel-framework",
 ]
 
@@ -3392,6 +3393,20 @@ dependencies = [
  "serde",
  "serde_json",
  "tiny-keccak",
+]
+
+[[package]]
+name = "sig_verif_2_program"
+version = "0.1.0"
+dependencies = [
+ "borsh 1.6.1",
+ "nssa_core",
+ "risc0-zkvm",
+ "ruint",
+ "serde",
+ "serde_json",
+ "sig_verif_2_core",
+ "spel-framework",
 ]
 
 [[package]]

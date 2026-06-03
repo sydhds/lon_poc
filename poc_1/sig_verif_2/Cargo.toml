@@ -2,7 +2,7 @@
 members = [
     "sig_verif_2_core",
     "methods",
-    "examples",
+    "examples", "sig_verif_2_program", "sig_verif_2_e2e_tests",
 ]
 exclude = [
     "methods/guest",

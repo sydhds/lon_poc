@@ -3,4 +3,5 @@
 /// Usage:
 ///   cargo run --bin generate_idl > sig_verif_2-idl.json
 
-spel_framework::generate_idl!("../methods/guest/src/bin/sig_verif_2.rs");
+// spel_framework::generate_idl!("../methods/guest/src/bin/sig_verif_2.rs");
+spel_framework::generate_idl!("../sig_verif_2_program/src/lib.rs");
