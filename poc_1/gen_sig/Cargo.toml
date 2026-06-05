@@ -1,0 +1,11 @@
+[package]
+name = "gen_sig"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+k256 = { version = "0.13.4", features = ["ecdsa", "serde"] }
+rand_core = "0.10.1"
+tiny-keccak = { version = "2.0", features = ["keccak"] }
+borsh = { version = "1.5", features = ["derive"] }
+rand = "0.10.1"

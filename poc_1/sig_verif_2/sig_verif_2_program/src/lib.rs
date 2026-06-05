@@ -87,4 +87,59 @@ mod sig_verif_2 {
 
         Ok(SpelOutput::execute(vec![token, owner], vec![]))
     }
+
+    #[instruction]
+    pub fn bench_sig(
+        #[account(mut, pda = literal("token"))]
+        mut token: AccountWithMetadata,
+        #[account(signer)]
+        owner: AccountWithMetadata,
+        payload: Vec<u8>,
+    ) -> SpelResult {
+
+        use k256::ecdsa::{Signature, VerifyingKey, RecoveryId};
+        use tiny_keccak::{Hasher, Keccak};
+
+        #[derive(BorshDeserialize, Clone)]
+        pub struct BenchmarkPayload {
+            pub digest: [u8; 32],
+            pub signature_bytes: [u8; 64],
+            pub recovery_id: u8,
+            pub expected_address: [u8; 20],
+        }
+
+        let payloads: Vec<BenchmarkPayload> = borsh::from_slice(&payload).map_err(|e| {
+            SpelError::DeserializationError {
+                account_index: 0,
+                message: e.to_string(),
+            }
+        })?;
+
+        for payload in payloads {
+
+            // Recover public key
+            let rec_id = RecoveryId::from_byte(payload.recovery_id).unwrap();
+            let sig = Signature::from_slice(&payload.signature_bytes).unwrap();
+
+            let recovered_key = VerifyingKey::recover_from_prehash(&payload.digest, &sig, rec_id)
+                .expect("Recovery failed");
+
+            // Get address
+            let mut address = [0u8; 20];
+            {
+                let mut hasher = Keccak::v256();
+                let encoded_point = recovered_key.to_encoded_point(false);
+                hasher.update(&encoded_point.as_bytes()[1..]);
+
+                let mut output = [0u8; 32];
+                hasher.finalize(&mut output);
+                address.copy_from_slice(&output[12..32]);
+            }
+
+            // Verify against expected address
+            assert_eq!(address, payload.expected_address, "Address mismatch!");
+        }
+
+        Ok(SpelOutput::execute(vec![token, owner], vec![]))
+    }
 }

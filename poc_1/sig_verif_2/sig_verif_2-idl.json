@@ -64,6 +64,39 @@
           }
         }
       ]
+    },
+    {
+      "name": "bench_sig",
+      "accounts": [
+        {
+          "name": "token",
+          "writable": true,
+          "signer": false,
+          "init": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": "token"
+              }
+            ]
+          }
+        },
+        {
+          "name": "owner",
+          "writable": false,
+          "signer": true,
+          "init": false
+        }
+      ],
+      "args": [
+        {
+          "name": "payload",
+          "type": {
+            "vec": "u8"
+          }
+        }
+      ]
     }
   ],
   "accounts": [

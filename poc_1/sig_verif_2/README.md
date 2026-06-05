@@ -22,3 +22,8 @@ Easy option (build contract, generate idl & deploy contract):
       * `cd ../pyth_extract && cargo run -- fetch`
         * The payload is ready to past (check for `pyth_payload (ready_for_spel)`)
     * `spel mint --owner 7e8dDMEsTj1RmJ6BZ3DXnimxWQMNQDpYkGbMsAfk8BKs --amount 15 --payload "{PAYLOAD}"`
+  * bench sig verification:
+    * get the payload:
+      * `cd ../gen_sig && cargo run -- {COUNT}`
+        * COUNT is the number of signatures to generate
+    * `spel bench_sig --owner 7e8dDMEsTj1RmJ6BZ3DXnimxWQMNQDpYkGbMsAfk8BKs --payload "{PAYLOAD}"`
