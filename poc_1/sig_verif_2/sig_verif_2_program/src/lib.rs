@@ -61,6 +61,8 @@ mod sig_verif_2 {
         payload: Vec<u8>,
     ) -> SpelResult {
 
+        println!("Start minting...");
+
         if !payload_verif(payload.as_slice(), &GUARDIAN_SET_INFO) {
             return SpelResult::Err(
                 SpelError::Custom { code: 0, message: "Failed to parse/verify payload bytes".to_string() }
