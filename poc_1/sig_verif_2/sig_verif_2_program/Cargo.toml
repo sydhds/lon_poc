@@ -1,25 +1,20 @@
 [package]
-name = "sig_verif_2-guest"
+name = "sig_verif_2_program"
 version = "0.1.0"
-edition = "2021"
-
-[workspace]
-
-[[bin]]
-name = "sig_verif_2"
-path = "src/bin/sig_verif_2.rs"
+edition = "2024"
 
 [dependencies]
 spel-framework = { git = "https://github.com/logos-co/spel.git", branch = "main" }
 nssa_core = { git = "https://github.com/logos-blockchain/logos-execution-zone.git", tag = "v0.2.0-rc3" }
 risc0-zkvm = { version = "=3.0.5", features = ["std"] }
-# risc0-zkvm = { version = "3.0.5", default-features = false }
-sig_verif_2_core = { path = "../../sig_verif_2_core" }
-sig_verif_2_program = { path = "../../sig_verif_2_program" }
+sig_verif_2_core = { path = "../sig_verif_2_core" }
 serde = { version = "1.0", features = ["derive"] }
 borsh = "1.5"
 ruint = "=1.17.0"
-# ruint = { version = "1.17.0", default-features = false, features = ["alloc"] }
+
+# bench only
+tiny-keccak.workspace = true
+k256.workspace = true
 
 [build-dependencies]
 serde = { version = "1.0.228", features = ["derive"] }

@@ -1,23 +1,22 @@
-use tiny_keccak::{Hasher, Keccak};
 use crate::byte_utils::ByteUtils;
+use tiny_keccak::{Hasher, Keccak};
 // use sha3::{Digest, Keccak256};
 
 // Validator Action Approval(VAA) data
 
-
 #[derive(Debug)]
 pub struct ParsedVAA {
-    pub version:            u8,
+    pub version: u8,
     pub guardian_set_index: u32,
-    pub timestamp:          u32,
-    pub nonce:              u32,
-    pub len_signers:        usize,
+    pub timestamp: u32,
+    pub nonce: u32,
+    pub len_signers: usize,
 
-    pub emitter_chain:     u16,
-    pub emitter_address:   Vec<u8>,
-    pub sequence:          u64,
+    pub emitter_chain: u16,
+    pub emitter_address: Vec<u8>,
+    pub sequence: u64,
     pub consistency_level: u8,
-    pub payload:           Vec<u8>,
+    pub payload: Vec<u8>,
 
     pub hash: Vec<u8>,
 }

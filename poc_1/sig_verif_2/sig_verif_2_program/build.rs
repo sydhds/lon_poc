@@ -27,7 +27,7 @@ fn main() {
     // Tell Cargo to recompile if the JSON file changes
     println!("cargo:rerun-if-changed=guardian.json");
 
-    let json_content = fs::read_to_string("guardian.json").unwrap();
+    let json_content = fs::read_to_string("../methods/guest/guardian.json").unwrap();
     let guardian: GuardianSetInfo_ = serde_json::from_str(&json_content).unwrap();
 
     println!("guardian: {:?}", guardian);
@@ -36,20 +36,26 @@ fn main() {
     // 2. Format it into standard Rust code
     let generated_code = format!(r#"
 
-        const addr_1: [u8; 20] = {:?};
-        const addr_2: [u8; 20] = {:?};
-        const addr_3: [u8; 20] = {:?};
-        const addr_4: [u8; 20] = {:?};
-        const addr_5: [u8; 20] = {:?};
-        const addr_6: [u8; 20] = {:?};
-        const addr_7: [u8; 20] = {:?};
-        const addr_8: [u8; 20] = {:?};
-        const addr_9: [u8; 20] = {:?};
-        const addr_10: [u8; 20] = {:?};
-        const addr_11: [u8; 20] = {:?};
-        const addr_12: [u8; 20] = {:?};
-        const addr_13: [u8; 20] = {:?};
-        pub const GUARDIAN_SET_INFO: GuardianSetInfo = GuardianSetInfo {{ expiration_time: {}, addresses: [addr_1, addr_2, addr_3, addr_4, addr_5, addr_6, addr_7, addr_8, addr_9, addr_10, addr_11, addr_12, addr_13] }};
+        const ADDR_1: [u8; 20] = {:?};
+        const ADDR_2: [u8; 20] = {:?};
+        const ADDR_3: [u8; 20] = {:?};
+        const ADDR_4: [u8; 20] = {:?};
+        const ADDR_5: [u8; 20] = {:?};
+        const ADDR_6: [u8; 20] = {:?};
+        const ADDR_7: [u8; 20] = {:?};
+        const ADDR_8: [u8; 20] = {:?};
+        const ADDR_9: [u8; 20] = {:?};
+        const ADDR_10: [u8; 20] = {:?};
+        const ADDR_11: [u8; 20] = {:?};
+        const ADDR_12: [u8; 20] = {:?};
+        const ADDR_13: [u8; 20] = {:?};
+        const ADDR_14: [u8; 20] = {:?};
+        const ADDR_15: [u8; 20] = {:?};
+        const ADDR_16: [u8; 20] = {:?};
+        const ADDR_17: [u8; 20] = {:?};
+        const ADDR_18: [u8; 20] = {:?};
+        const ADDR_19: [u8; 20] = {:?};
+        pub const GUARDIAN_SET_INFO: GuardianSetInfo = GuardianSetInfo {{ expiration_time: {}, addresses: [ADDR_1, ADDR_2, ADDR_3, ADDR_4, ADDR_5, ADDR_6, ADDR_7, ADDR_8, ADDR_9, ADDR_10, ADDR_11, ADDR_12, ADDR_13, ADDR_14, ADDR_15, ADDR_16, ADDR_17, ADDR_18, ADDR_19] }};
     "#,
                                  guardian.addresses[0].bytes,
                                  guardian.addresses[1].bytes,
@@ -64,6 +70,12 @@ fn main() {
                                  guardian.addresses[10].bytes,
                                  guardian.addresses[11].bytes,
                                  guardian.addresses[12].bytes,
+                                 guardian.addresses[13].bytes,
+                                 guardian.addresses[14].bytes,
+                                 guardian.addresses[15].bytes,
+                                 guardian.addresses[16].bytes,
+                                 guardian.addresses[17].bytes,
+                                 guardian.addresses[18].bytes,
                                  guardian.expiration_time,
     );
 

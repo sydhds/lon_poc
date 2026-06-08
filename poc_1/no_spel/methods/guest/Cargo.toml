@@ -1,0 +1,16 @@
+[package]
+name = "no_spel-guest"
+version = "0.1.0"
+edition = "2021"
+
+[workspace]
+
+[[bin]]
+name = "no_spel"
+path = "src/bin/no_spel.rs"
+
+[dependencies]
+spel-framework = { git = "https://github.com/logos-co/spel.git", branch = "main" }
+nssa_core = { git = "https://github.com/logos-blockchain/logos-execution-zone.git", tag = "v0.2.0-rc3" }
+risc0-zkvm = { version = "=3.0.5", features = ["std"] }
+no_spel_program = { path = "../../no_spel_program" }
