@@ -164,6 +164,9 @@ mod tests {
             .unwrap()
             .write(&instruction_data)
             .unwrap()
+            // Note: in logos-execution-zone, the limit is set to:
+            // `const MAX_NUM_CYCLES_PUBLIC_EXECUTION: u64 = 1024 * 1024 * 32; // 32M cycles`
+            // Here: 11,75 M cycles are enough for 1 sig verif
             .session_limit(Some(11_750_000))
             .build()
             .unwrap();
