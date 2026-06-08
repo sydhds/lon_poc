@@ -1,0 +1,13 @@
+[package]
+name = "no_spel_e2e_tests"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+
+[dev-dependencies]
+risc0-zkvm = { version = "=3.0.5", features = ["std", "prove"] }
+borsh = "1.5"
+no_spel_program = { path = "../no_spel_program" }
+spel-framework = { git = "https://github.com/logos-co/spel.git", branch = "main" }
+nssa_core = { git = "https://github.com/logos-blockchain/logos-execution-zone.git", tag = "v0.2.0-rc3" }

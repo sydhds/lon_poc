@@ -1,11 +1,10 @@
 use k256::ecdsa::{SigningKey, signature::Signer};
 use tiny_keccak::{Hasher, Keccak};
 use rand::prelude::*;
-// use serde::{Deserialize, Serialize};
-use borsh::{BorshSerialize};
+use borsh::{BorshDeserialize, BorshSerialize};
 use k256::elliptic_curve::rand_core::OsRng;
 
-#[derive(BorshSerialize, Clone)]
+#[derive(Debug, Clone, BorshSerialize)]
 pub struct BenchmarkPayload {
     pub digest: [u8; 32],
     pub signature_bytes: [u8; 64],
@@ -41,6 +40,8 @@ fn generate_mock_payloads(count: usize) -> Vec<BenchmarkPayload> {
             recovery_id: recovery_id.to_byte(),
             expected_address,
         });
+
+        // println!("Generated payload: {:?}", payloads.last().unwrap());
     }
 
     payloads
