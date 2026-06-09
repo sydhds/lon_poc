@@ -39,13 +39,15 @@ pub fn main() {
         let recovered_key = VerifyingKey::recover_from_prehash(&digest_bytes, &sig, rec_id)
             .unwrap();
 
+        let encoded_point_bytes = recovered_key.to_encoded_point(false); // .as_bytes()[1..];
+
         let mut address = [0u8; 20];
         let mut hasher = Keccak::v256();
-        hasher.update(&recovered_key.to_encoded_point(false).as_bytes()[1..]);
+        hasher.update(&encoded_point_bytes.as_bytes()[1..]);
         let mut output = [0u8; 32];
         hasher.finalize(&mut output);
-        address.copy_from_slice(&output[12..32]);
 
+        address.copy_from_slice(&output[12..32]);
         assert_eq!(address, expected_address);
     }
 }

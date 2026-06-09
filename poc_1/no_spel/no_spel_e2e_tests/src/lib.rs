@@ -166,7 +166,7 @@ mod tests {
             .unwrap()
             // Note: in logos-execution-zone, the limit is set to:
             // `const MAX_NUM_CYCLES_PUBLIC_EXECUTION: u64 = 1024 * 1024 * 32; // 32M cycles`
-            // Here: 11,75 M cycles are enough for 1 sig verif
+            // Here: 11,75 M cycles are enough for 1 sig verif (11_750_000)
             .session_limit(Some(11_750_000))
             .build()
             .unwrap();
@@ -176,5 +176,7 @@ mod tests {
             .expect("Failed to initialize executor")
             .run()
             .expect("Guest execution panicked!");
+
+        println!("session info cycles: {} total - {} paging - {} user", session_info.total_cycles, session_info.paging_cycles, session_info.user_cycles)
     }
 }
