@@ -30,3 +30,8 @@ lb-common-http-client = { workspace = true }
 lb-core = { workspace = true }
 lb-key-management-system-service = { workspace = true }
 logos-blockchain-zone-sdk = { path = "../logos-blockchain/zone-sdk" }
+# pyth fetch
+reqwest.workspace = true
+reqwest-eventsource = "0.6"
+futures.workspace = true
+
