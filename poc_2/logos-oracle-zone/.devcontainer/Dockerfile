@@ -9,6 +9,8 @@ RUN apt-get update && apt-get install -y \
     git \
     build-essential \
     sudo \
+    libssl-dev \
+    pkg-config \
     && rm -rf /var/lib/apt/lists/*
 
 ENV HOME=/home/ubuntu
@@ -37,6 +39,9 @@ ENV PATH="$HOME/.cargo/bin:$PATH"
 
 # Trust the workspace directory to avoid Git ownership errors
 RUN git config --global --add safe.directory /workspace
+
+# Logos required
+RUN curl -sSL https://raw.githubusercontent.com/logos-blockchain/logos-blockchain/1da154c74b911318fb853d37261f8a05ffe513b4/scripts/setup-logos-blockchain-circuits.sh | bash
 
 # Set the default working directory
 WORKDIR /workspace

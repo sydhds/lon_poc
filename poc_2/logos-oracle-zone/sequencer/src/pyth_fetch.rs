@@ -1,9 +1,11 @@
 use futures::StreamExt;
 use reqwest::Client;
 use reqwest_eventsource::{Event, EventSource};
+use tokio::sync::mpsc::UnboundedSender;
 use tokio::time::{sleep, Duration};
+use serde::Deserialize;
 
-pub async fn fetch_price(hermes_price_url: &str, price_id: &str) {
+pub async fn fetch_price(hermes_price_url: &str, price_id: &str, price_update_queue: UnboundedSender<HermesPriceEvent>) {
     /*
     let eth_usd_id = "ff61491a931112ddf1bd8147cd1b641375f79f5825126d665480874634fd0ace";
     let url = format!(
@@ -32,6 +34,17 @@ pub async fn fetch_price(hermes_price_url: &str, price_id: &str) {
                 }
                 Ok(Event::Message(message)) => {
                     // println!("New Price Update: {}", message.data);
+
+                    match serde_json::from_str::<HermesPriceEvent>(&message.data) {
+                        Ok(update_event) => {
+                            if let Err(e) = price_update_queue.send(update_event) {
+                                eprintln!("Error while sending price update event: {}", e);
+                            }
+                        },
+                        Err(err) => {
+                            eprintln!("Failed to parse Pyth JSON: {}\nRaw data: {}", err, message.data);
+                        }
+                    }
                 }
                 Err(err) => {
                     eprintln!("Fatal stream error: {}", err);
@@ -49,4 +62,31 @@ pub async fn fetch_price(hermes_price_url: &str, price_id: &str) {
         // Exponentially increase the delay, capped at 30 seconds
         retry_delay = std::cmp::min(retry_delay * 2, Duration::from_secs(30));
     }
+}
+
+#[derive(Debug, Deserialize)]
+pub struct HermesPriceEvent {
+    pub binary: Option<BinaryUpdate>,
+    pub parsed: Option<Vec<ParsedUpdate>>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct BinaryUpdate {
+    pub encoding: String,
+    pub data: Vec<String>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct ParsedUpdate {
+    pub id: String,
+    pub price: PriceInfo,
+    pub ema_price: Option<PriceInfo>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct PriceInfo {
+    pub price: String,
+    pub conf: String,
+    pub expo: i32,
+    pub publish_time: i64,
 }

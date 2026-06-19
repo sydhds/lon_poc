@@ -3,6 +3,7 @@ use std::path::Path;
 use std::time::Duration;
 use anyhow::anyhow;
 use rand::Rng;
+use tokio::sync::mpsc::UnboundedSender;
 use url::Url;
 use logos_blockchain_zone_sdk::{
     adapter::NodeHttpClient,
@@ -67,7 +68,12 @@ impl Sequencer {
                     error!("Batch processing failed: {e}");
                 }
                 */
-                println!("Should process pending batch...");
+                // TODO: call ask_and_write_price
+                /*
+                if let Err(e) = ask_and_write_price(&sequencer_handle).await {
+                    eprintln!("Error while writing price update: {}", e);
+                }
+                */
             }
         });
 
@@ -99,4 +105,26 @@ fn load_or_create_signing_key(path: &Path) -> Ed25519Key {
         fs::write(path, key_bytes).expect("failed to write key file");
         Ed25519Key::from_bytes(&key_bytes)
     }
+}
+
+enum PriceUpdate {
+    Request,
+    Respond(u64),
+}
+
+async fn ask_and_write_price(queue: UnboundedSender<tokio::sync::oneshot::Sender<PriceUpdate>>, handle: &SequencerHandle<NodeHttpClient>) -> anyhow::Result<u64> {
+
+    // TODO: use rocksdb to read the price
+
+    /*
+    let (one_tx, one_rx) = tokio::sync::oneshot::channel();
+    queue.send(one_tx)?;
+    let respond = one_rx.await?;
+    match respond {
+        PriceUpdate::Request => panic!(),
+        PriceUpdate::Respond(price) => { Ok(price) }
+    }
+    */
+
+    Ok(42)
 }

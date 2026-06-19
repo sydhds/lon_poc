@@ -25,6 +25,8 @@ tokio = { default-features = false, features = [
 ], version = "1" }
 url.workspace = true
 rand.workspace = true
+serde.workspace = true
+serde_json.workspace = true
 # lb deps
 lb-common-http-client = { workspace = true }
 lb-core = { workspace = true }
