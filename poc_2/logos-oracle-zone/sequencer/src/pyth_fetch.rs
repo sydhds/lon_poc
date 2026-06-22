@@ -3,7 +3,7 @@ use reqwest::Client;
 use reqwest_eventsource::{Event, EventSource};
 use tokio::sync::mpsc::UnboundedSender;
 use tokio::time::{sleep, Duration};
-use serde::Deserialize;
+use serde::{Serialize, Deserialize};
 
 pub async fn fetch_price(hermes_price_url: &str, price_id: &str, price_update_queue: UnboundedSender<HermesPriceEvent>) {
     /*
@@ -76,14 +76,16 @@ pub struct BinaryUpdate {
     pub data: Vec<String>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Default)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ParsedUpdate {
     pub id: String,
     pub price: PriceInfo,
     pub ema_price: Option<PriceInfo>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Default)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PriceInfo {
     pub price: String,
     pub conf: String,

@@ -11,6 +11,7 @@ RUN apt-get update && apt-get install -y \
     sudo \
     libssl-dev \
     pkg-config \
+    unzip \
     && rm -rf /var/lib/apt/lists/*
 
 ENV HOME=/home/ubuntu

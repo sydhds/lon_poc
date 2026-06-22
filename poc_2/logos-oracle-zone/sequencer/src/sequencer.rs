@@ -2,23 +2,31 @@ use std::fs;
 use std::path::Path;
 use std::time::Duration;
 use anyhow::anyhow;
+use dashmap::DashMap;
 use rand::Rng;
 use tokio::sync::mpsc::UnboundedSender;
 use url::Url;
 use logos_blockchain_zone_sdk::{
     adapter::NodeHttpClient,
-    sequencer::{Event, SequencerCheckpoint, SequencerHandle, ZoneSequencer},
+    sequencer::{Event, SequencerCheckpoint, SequencerHandle, SequencerClient, ZoneSequencer},
 };
 use lb_common_http_client::{BasicAuthCredentials, CommonHttpClient};
-use lb_core::mantle::ops::channel::ChannelId;
+use lb_core::codec::SerializeOp;
+use lb_core::mantle::ops::channel::{ChannelId, inscribe::Inscription};
+use lb_core::mantle::ops::channel::inscribe::MAX_BYTES;
 use lb_key_management_system_service::keys::{ED25519_SECRET_KEY_SIZE, Ed25519Key};
+use crate::pyth_fetch::{ParsedUpdate, PriceInfo};
+use crate::zone_state::InMemoryZoneState;
 
 pub struct Sequencer {
     sequencer: ZoneSequencer<NodeHttpClient>,
-    handle: SequencerHandle<NodeHttpClient>,
-    // state: InMemoryZoneState,
+    client: SequencerClient,
+    // handle: SequencerHandle<NodeHttpClient>,
+    state: InMemoryZoneState,
     // pub queue_file: String,
-    // pub checkpoint_path: String,
+    pub checkpoint_path: String,
+    price_map: DashMap<String, Vec<ParsedUpdate>>,
+    price_feed: String,
 }
 
 impl Sequencer {
@@ -28,9 +36,11 @@ impl Sequencer {
         signing_key_path: &str,
         node_auth_username: Option<String>,
         node_auth_password: Option<String>,
-        queue_file: &str,
+        // queue_file: &str,
         checkpoint_path: &str,
-        channel_path: &str
+        // channel_path: &str,
+        price_map: DashMap<String, Vec<ParsedUpdate>>,
+        price_feed: String,
     ) -> anyhow::Result<Self> {
 
         let checkpoint = None;
@@ -42,45 +52,66 @@ impl Sequencer {
             .map(|username| BasicAuthCredentials::new(username, node_auth_password));
 
         let node = NodeHttpClient::new(CommonHttpClient::new(basic_auth), node_url);
-        let (sequencer, handle) = ZoneSequencer::init(channel_id, signing_key, node, checkpoint);
+        let sequencer = ZoneSequencer::init(channel_id, signing_key, node, checkpoint);
+        let client = sequencer.client();
 
         Ok(Self {
             sequencer,
-            handle,
-            // state: InMemoryZoneState::default(),
+            client,
+            state: InMemoryZoneState::default(),
             // queue_file: queue_file.to_owned(),
-            // checkpoint_path: checkpoint_path.to_owned(),
+            checkpoint_path: checkpoint_path.to_owned(),
+            price_map,
+            price_feed
         })
     }
 
     pub async fn run(&mut self) {
+        
+        let sequencer_client = self.client.clone();
 
-        // let Self { mut sequencer, handle, mut state, queue_file, checkpoint_path } = self;
+        let price_map = self.price_map.clone();
+        let price_feed = self.price_feed.clone();
 
-        let mut sequencer_handle = self.handle.clone();
         tokio::spawn(async move {
-            let mut interval = tokio::time::interval(Duration::from_millis(100));
+            let mut interval = tokio::time::interval(Duration::from_mins(1));
+
+            // Wait for sequencer to be ready
+            let mut ready_rx = sequencer_client.subscribe_ready();
+            let _ = ready_rx.wait_for(|r| *r).await;
+
             loop {
+
+                // take prices from price_map
+                let prices: Vec<ParsedUpdate> = std::mem::take(
+                    price_map.get_mut(&price_feed).unwrap().value_mut()
+                );
+                let Some(price_latest) = prices.last() else { continue };
+
+                // store it
+                let Ok(prices_latest_json) = serde_json::to_string(price_latest) else { continue };
+
+                println!("max bytes for inscription: {:?}", MAX_BYTES);
+
+                let inscription = Inscription::try_from(prices_latest_json.to_bytes().unwrap().to_vec())
+                     .map_err(|e| SequencerError::InscriptionTooLarge(e.to_string()))
+                    .unwrap();
+
+                if let Err(e) = sequencer_client.publish(inscription).await {
+                    eprintln!("failed to publish batch: {e}");
+                } else {
+                    println!("Submitted price update");
+                }
+
+                // Wait for 1 minutes between 2 prices update
                 interval.tick().await;
-                sequencer_handle.wait_ready().await;
-                /*
-                if let Err(e) = process_pending_batch(&queue_file, &batch_handle).await {
-                    error!("Batch processing failed: {e}");
-                }
-                */
-                // TODO: call ask_and_write_price
-                /*
-                if let Err(e) = ask_and_write_price(&sequencer_handle).await {
-                    eprintln!("Error while writing price update: {}", e);
-                }
-                */
             }
         });
 
         loop {
-            let Some(event) = self.sequencer.next_event().await else { continue; };
-            // handle_event(event, &handle, &mut state, &checkpoint_path).await;
-            println!("Should handle event: {:?}", event);
+            let event = self.sequencer.next_event().await;
+            println!("Handle event: {:?}", event);
+            handle_event(event, &mut self.sequencer, &mut self.state, &self.checkpoint_path);
         }
     }
 
@@ -107,24 +138,37 @@ fn load_or_create_signing_key(path: &Path) -> Ed25519Key {
     }
 }
 
-enum PriceUpdate {
-    Request,
-    Respond(u64),
+#[derive(Debug, thiserror::Error)]
+pub enum SequencerError {
+    #[error("URL parse error: {0}")]
+    Url(String),
+    #[error("IO error: {0}")]
+    Io(#[from] std::io::Error),
+    #[error("Inscription too large: {0}")]
+    InscriptionTooLarge(String),
 }
 
-async fn ask_and_write_price(queue: UnboundedSender<tokio::sync::oneshot::Sender<PriceUpdate>>, handle: &SequencerHandle<NodeHttpClient>) -> anyhow::Result<u64> {
+fn handle_event(
+    event: Event,
+    sequencer: &mut ZoneSequencer<NodeHttpClient>,
+    state: &mut InMemoryZoneState,
+    checkpoint_path: &str,
+) {
+    match event {
+        Event::Ready => {
+            println!("Sequencer ready");
+        },
+        Event::BlocksProcessed { checkpoint, channel_update, finalized } => {
+            println!("BlocksProcessed");
 
-    // TODO: use rocksdb to read the price
+            save_checkpoint(Path::new(checkpoint_path), &checkpoint);
 
-    /*
-    let (one_tx, one_rx) = tokio::sync::oneshot::channel();
-    queue.send(one_tx)?;
-    let respond = one_rx.await?;
-    match respond {
-        PriceUpdate::Request => panic!(),
-        PriceUpdate::Respond(price) => { Ok(price) }
+        },
+        Event::MempoolPending(_) | Event::TurnNotification { .. } => {}
     }
-    */
+}
 
-    Ok(42)
+fn save_checkpoint(path: &Path, checkpoint: &SequencerCheckpoint) {
+    let data = serde_json::to_vec(checkpoint).expect("failed to serialize checkpoint");
+    fs::write(path, data).expect("failed to write checkpoint file");
 }
