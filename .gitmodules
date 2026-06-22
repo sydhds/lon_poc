@@ -1,0 +1,3 @@
+[submodule "poc_2/logos-oracle-zone/logos-blockchain"]
+	path = poc_2/logos-oracle-zone/logos-blockchain
+	url = https://github.com/logos-blockchain/logos-blockchain

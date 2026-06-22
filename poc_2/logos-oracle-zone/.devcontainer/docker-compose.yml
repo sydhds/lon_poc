@@ -1,0 +1,33 @@
+services:
+  app:
+    # Build using your existing Dockerfile
+    build: 
+      context: ..
+      dockerfile: .devcontainer/Dockerfile
+    # Mount the project folder
+    volumes:
+      - ../:/workspace:cached
+      # Mount named volumes to the Cargo cache directories
+      # Optional - can
+      - cargo-registry:/home/ubuntu/.cargo/registry
+      - cargo-git:/home/ubuntu/.cargo/git
+    # Keep the container running
+    command: /bin/sh -c "while sleep 1000; do :; done"
+    depends_on:
+      - db
+
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: my_db
+    # Optional: Persist database data across container restarts
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+volumes:
+  postgres-data:
+  cargo-registry:
+  cargo-git:

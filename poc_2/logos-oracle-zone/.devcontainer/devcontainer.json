@@ -1,0 +1,15 @@
+{
+  "name": "Rust LON",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "app",
+  "workspaceFolder": "/workspace",
+  "remoteUser": "ubuntu",
+  "containerUser": "ubuntu",
+  "updateRemoteUserUID": false,
+  "customizations": {
+    "jetbrains": {
+      "backend": "RustRover"
+    }
+  },
+  // "forwardPorts": [9999, 5432]
+}
