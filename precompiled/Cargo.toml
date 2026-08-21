@@ -1,0 +1,18 @@
+[workspace]
+members = [
+    "methods", "no_spel_e2e_tests",
+    # "no_spel-methods",
+    "no_spel_program"
+]
+exclude = [
+    "methods/guest",
+]
+resolver = "2"
+
+[workspace.dependencies]
+k256 = { version = "0.13.4", features = ["ecdsa", "serde"] }
+tiny-keccak = { version = "2.0", features = ["keccak"] }
+
+[patch.crates-io]
+tiny-keccak = { git = "https://github.com/risc0/tiny-keccak", tag = "tiny-keccak/v2.0.2-risczero.0" }
+k256 = { git = "https://github.com/risc0/RustCrypto-elliptic-curves", tag = "k256/v0.13.4-risczero.1" }
